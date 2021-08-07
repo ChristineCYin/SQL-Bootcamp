@@ -1,0 +1,154 @@
+-- 1 --
+SELECT * FROM cd.facilities
+
+-- 2 --
+SELECT name, membercost FROM cd.facilities 
+
+-- 3 --
+SELECT * FROM cd.facilities
+WHERE membercost >0
+
+-- 4 --
+SELECT facid, name, membercost, monthlymaintenance FROM cd.facilities
+WHERE membercost >0 AND membercost < 0.02 * monthlymaintenance
+
+/* answer: 
+membercost < (monthlymaintenance/50.0);
+membercost < ((1/50.0)* monthlymaintenance);
+
+NOTE: needs to be 50.0
+*/
+
+-- 5 --
+SELECT facid, name, membercost, monthlymaintenance FROM cd.facilities
+WHERE name LIKE '%Tennis%'
+
+-- 6 --
+SELECT facid, name, membercost, monthlymaintenance FROM cd.facilities
+WHERE name LIKE '%2%'
+
+/* answer: 
+WHERE facid = 1 or facid = 5 
+Or 
+WHERE facid IN (1,5)
+
+NOTE: “IN” is to check the list that follow by IN
+*/
+
+-- 7 --
+SELECT memid, surname, firstname, joindate FROM cd.members
+WHERE joindate > '2012-09-01'
+
+/* answer: 
+WHERE joindate >= '2012-09-01'
+
+NOTE: you can use >= in SQL
+*/
+
+-- 8 --
+SELECT DISTINCT surname FROM cd.members
+ORDER BY surname ASC
+LIMIT 10
+
+-- 9 --
+SELECT surname, joindate FROM cd.members 
+WHERE joindate = 
+(SELECT max(joindate) FROM cd.members )
+
+/* answer: 
+SELECT MAX(joindate) AS latest_signup FROM cd.members;
+
+NOTE: no need surname in the question
+*/
+
+-- 10 --
+SELECT COUNT (*) FROM cd.facilities 
+WHERE guestcost >= 10
+
+-- 11 --
+SELECT facid, SUM(slots) FROM cd.bookings
+WHERE starttime BETWEEN '2012-09-01' AND '2012-10-1'
+GROUP BY facid
+ORDER BY SUM(slots) ASC
+
+/*
+NOTE: BETWEEN need to be careful when using for date: because sometime it will as exclusive or inclusive depending on the system and how it thinks of the end of a day whether a day starts at zero hundred hours or ends at twenty four hundred. That could cause some confusion with the between operator and often for the end date you have to go one day further into the future.
+The better way:
+WHERE starttime >= '2012-09-01' AND starttime < '2012-10-1'
+*/
+
+-- 12 --
+SELECT facid, SUM(slots) FROM cd.bookings
+GROUP BY facid
+HAVING SUM(slots)>1000
+ORDER BY facid ASC
+
+-- 13 --
+SELECT starttime, name
+FROM cd.facilities
+INNER JOIN cd.bookings ON cd.bookings.facid=cd.facilities.facid
+WHERE name ILIKE 'Tennis court%' AND starttime BETWEEN '2012-09-21' AND '2012-09-22'
+ORDER BY starttime ASC
+
+/*
+SELECT cd.bookings.starttime AS start, cd.facilities.name 
+AS name 
+FROM cd.facilities 
+INNER JOIN cd.bookings
+ON cd.facilities.facid = cd.bookings.facid 
+WHERE cd.facilities.facid IN (0,1) 
+AND cd.bookings.starttime >= '2012-09-21' 
+AND cd.bookings.starttime < '2012-09-22' 
+ORDER BY cd.bookings.starttime;
+*/
+
+-- 14 --
+SELECT starttime FROM cd.bookings
+Where memid IN
+(SELECT memid FROM cd.members
+WHERE surname ='Farrell' and firstname = 'David')
+
+/*
+SELECT cd.bookings.starttime 
+FROM cd.bookings 
+INNER JOIN cd.members ON 
+cd.members.memid = cd.bookings.memid 
+WHERE cd.members.firstname='David' 
+AND cd.members.surname='Farrell';
+*/
+
+
+/* NOTE
+
+JOIN
+Inner Join
+SELECT * FROM TableA
+INNER JOIN TableB
+ON TableA.name = TableB.name
+
+
+FULL OUTER JOIN
+SELECT * FROM TableA
+FULL OUTER JOIN TableB
+ON TableA.name = TableB.name
+
+
+LEFT OUTER JOIN
+SELECT * FROM TableA
+LEFT OUTER JOIN TableB
+ON TableA.name = TableB.name
+
+
+SELECT * FROM TableA
+LEFT OUTER JOIN TableB
+ON TableA.name = TableB.name
+WHERE TableB.id IS null
+
+
+SELECT * FROM TableA
+FULL OUTER JOIN TableB
+ON TableA.name = TableB.name
+WHERE TableA.id IS null
+OR TableB.id IS null
+
+*/
